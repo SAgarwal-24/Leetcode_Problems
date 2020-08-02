@@ -1,0 +1,64 @@
+Spiral Matrix II
+
+Given a positive integer n, generate a square matrix filled with elements from 1 to n2 in spiral order.
+Example:
+Input: 3
+Output:
+[
+ [ 1, 2, 3 ],
+ [ 8, 9, 4 ],
+ [ 7, 6, 5 ]
+]
+
+
+void print(vector<vector<int>>&grid,int rows,int rowe,int cols,int cole,int num)
+{
+    int i,j;
+    
+    if(rows>=rowe || cols>=cole)
+        return;
+    
+    // first row
+    for(i=cols;i<cole;i++)
+    {
+        grid[rows][i]=num++;
+    }
+    rows++; // Now first row is changed since first row is filled
+    
+    // last column
+    for(i=rows;i<rowe;i++)
+    {
+        grid[i][cole-1]=num++;
+    }
+    cole--; // Now last column is changed , since lst col is filled
+    
+    if(rowe>rows)
+    for(i=cole-1;i>=cols;i--)
+    {
+        grid[rowe-1][i]=num++;
+    }
+    rowe--; // last row is filled
+    
+    if(cole>cols)
+    for(i=rowe-1;i>=rows;i--)
+    {
+        grid[i][cols]=num++;
+    }
+    cols++;// first col is filled
+    
+    print(grid,rows,rowe,cols,cole,num);
+    
+    
+}
+
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+        
+        vector<vector<int>>grid(n,vector<int>(n,0));
+        int num=1;
+        print(grid,0,n,0,n,num);
+        
+        return grid;
+    }
+};
