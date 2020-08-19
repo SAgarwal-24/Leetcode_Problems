@@ -1,0 +1,115 @@
+Numbers With Same Consecutive Differences
+
+
+Return all non-negative integers of length N such that the absolute difference between every two consecutive digits is K.
+Note that every number in the answer must not have leading zeros except for the number 0 itself. For example, 01 has one leading zero and is invalid, but 0 is valid.
+You may return the answer in any order.
+ 
+Example 1:
+Input: N = 3, K = 7
+Output: [181,292,707,818,929]
+Explanation: Note that 070 is not a valid number, because it has leading zeroes.
+Example 2:
+Input: N = 2, K = 1
+Output: [10,12,21,23,32,34,43,45,54,56,65,67,76,78,87,89,98]
+ 
+Note:
+1.	1 <= N <= 9
+2.	0 <= K <= 9
+
+
+
+
+
+
+
+
+
+
+Top Answers
+My logic
+•	we will iterrate num from 1 to 9 and pass it to rcheck
+•	rcheck will check if we can get a possible solution with num-k and num+k
+•	if possible it will further pass it to rcheck with new num and decrease n by 1
+•	the process continues untill we reach the limit of n
+eg. n=3,k=7
+•	rcheck(1,7,3)->1-7=-6 not possible, but 1+7=8 possible ,so rcheck(18,7,2)->8-7=1 possible rcheck(181,7,1) reached the limit so 181 is an answer again 8+7=15 not possible
+•	rcheck(2,7,3)->2-7=-6 not possible, but 2+7=9 possible ,so rcheck(29,7,2)->9-7=2 possible rcheck(292,7,1) reached the limit so 292 is an answer again 9+7=16 not possible
+•	rcheck(3,7,3)->3-7=-6 not possible, but 3+7=10 not possible
+•	....we continue the process till 9 and we get all the answers
+  vector<int> ans;
+    void rcheck(int num,int k,int n){
+        if(n==1){ans.push_back(num);return;}
+        if(num%10-k>=0)rcheck(num*10+(num%10-k),k,n-1);
+        if(k){if(num%10+k<10)rcheck(num*10+(num%10+k),k,n-1);}
+    }
+    vector<int> numsSameConsecDiff(int n, int k) {
+        if(n==1)return {0,1,2,3,4,5,6,7,8,9};
+        for(int i=1;i<10;i++) rcheck(i,k,n);
+        return ans;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Mycode:
+class Solution {
+public:
+    
+    void  make_num(int dig,int n,int k,int num,vector<int>&ans)
+    {
+        if(n<=1)
+        {
+            ans.push_back(num);
+            return ;
+        }
+        
+        int next_dig;
+        
+        if(dig+k<=9)
+        {
+            next_dig=dig+k;
+            
+            int t=num*10+next_dig;
+            
+            make_num(next_dig,n-1,k,t,ans);
+        }
+        
+        if(dig-k>=0 && dig>0 && k!=0)
+        {
+            next_dig=dig-k;
+            num=num*10+next_dig;
+           // cout<<"num  n: "<<num<<" "<<n<<"\n";
+            make_num(next_dig,n-1,k,num,ans);
+        }
+    }
+    
+    vector<int> numsSameConsecDiff(int N, int K) {
+        
+        int i;
+        vector<int>ans;
+        if(N==1)
+        {
+            make_num(0,N,K,0,ans);  
+        }
+        
+        
+        for(i=1;i<=9;i++)
+        {
+           make_num(i,N,K,i,ans);
+        }
+        
+        sort(ans.begin(),ans.end());
+        return ans;
+    }
+};
