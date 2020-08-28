@@ -1,0 +1,93 @@
+Find Right Interval
+Solution
+Given a set of intervals, for each of the interval i, check if there exists an interval j whose start point is bigger than or equal to the end point of the interval i, which can be called that j is on the "right" of i.
+For any interval i, you need to store the minimum interval j's index, which means that the interval j has the minimum start point to build the "right" relationship for interval i. If the interval j doesn't exist, store -1 for the interval i. Finally, you need output the stored value of each interval as an array.
+Note:
+1.	You may assume the interval's end point is always bigger than its start point.
+2.	You may assume none of these intervals have the same start point.
+ 
+Example 1:
+Input: [ [1,2] ]
+
+Output: [-1]
+
+Explanation: There is only one interval in the collection, so it outputs -1.
+ 
+Example 2:
+Input: [ [3,4], [2,3], [1,2] ]
+
+Output: [-1, 0, 1]
+
+Explanation: There is no satisfied "right" interval for [3,4].
+For [2,3], the interval [3,4] has minimum-"right" start point;
+For [1,2], the interval [2,3] has minimum-"right" start point.
+ 
+Example 3:
+Input: [ [1,4], [2,3], [3,4] ]
+
+Output: [-1, 2, -1]
+
+Explanation: There is no satisfied "right" interval for [1,4] and [3,4].
+For [2,3], the interval [3,4] has minimum-"right" start point.
+
+
+
+
+	[[1,12],[2,9],[3,10],[13,14],[15,16],[16,17]]   <= Input array
+	Map Will be     
+m [ 1 ]  = 0     m [ 2 ] = 1    m [ 3 ] =  2     m [ 13 ] =  3 	m [ 15 ]  = 4     m [ 16 ] = 5
+Now,
+lower_bound of    12   is   13 [ in map key ]   now m [ 13 ] =  3  put it in answer array     ans => [ 3 ]  
+lower_bound of    9   is   13 [ in map key ]   now m [ 9 ] =  3  put it in answer array     ans => [ 3, 3 ]  
+lower_bound of    10   is   13 [ in map key ]   now m [ 10 ] =  3  put it in answer array     ans => [ 3, 3, 3 ]  
+lower_bound of    14   is   15 [ in map key ]   now m [ 14 ] =  4  put it in answer array     ans => [ 3, 3, 3, 4 ]  
+lower_bound of    17   is   none or You can say It reachs end of map so  put  -1 in answer array     ans => [ 3, 3, 3, 4, -1 ]  
+
+at last return [ 3, 3, 3, 4, -1 ] 
+
+
+class Solution {
+public:
+    vector<int> findRightInterval(vector<vector<int>>& intervals) {
+        vector<int> ans(intervals.size());
+        map<int, int> m;
+
+        for(int i = 0; i < intervals.size(); i++)
+            m[intervals[i][0]] = i;
+
+
+        for(int i = 0; i < intervals.size(); i++) 
+               ans[i]  = m.lower_bound(intervals[i][1])!=end(m)?m.lower_bound(intervals[i][1]) -> second:-1;
+
+
+        return ans;
+    }
+};
+
+Let us look carefully at our statement: for each interval i we need to find interval j, whose start is bigger or equal to the end point of interval i. We can rephrase this:
+Given end of interval i, we need to find such point among starts of interval, which goes immedietly after this end of iterval i. How we can find this point? We can sort our intervals by starts (and hopefully there is no equal starts by statement) and then for each end of interval find desired place. Let us go through exapmle:
+[1,12], [2,9], [3,10], [13,14], [15,16], [16,17] (I already sorted it by starts):
+1.	Look for number 12 in begs = [1,2,3,13,15,16]. What place we need? It is 3, because 12 <13 and 12 > 3.
+2.	Look for number 9, again place is 3.
+3.	Look for number 10, place is 3.
+4.	Look for number 14, place is 4, because 13<14<15.
+5.	Look for number 16, what is place? In is 5, because begs[5] = 16. Exactly for this reason we use bisect_left, which will deal with these cases.
+6.	Look for number 17, what is place? it is 6, but it means it is bigger than any number in our begs, so we should return -1.
+So, what we do:
+1.	Sort our intervals by starts, but also we need to keep they original numbers, so I sort triplets: [start, end, index].
+2.	Create array of starts, which I call begs.
+3.	Creaty out result, which filled with -1.
+4.	Iterate over ints and for every end j, use bisect_left. Check that found index t < len(begs) and if it is, update out[k] = ints[t][2]. Why we update in this way, because our intervals in sorter list have different order, so we need to obtain original index.
+Complexity: time complexity is O(n log n): both for sort and for n binary searches. Space complexity is O(n).
+class Solution:
+    def findRightInterval(self, intervals):
+        ints = sorted([[j,k,i] for i,[j,k] in enumerate(intervals)])
+        begs = [i for i,_,_ in ints]
+        out = [-1]*len(begs)
+        for i,j,k in ints:
+            t = bisect.bisect_left(begs, j)
+            if t < len(begs):
+                out[k] = ints[t][2]
+        
+        return out
+
